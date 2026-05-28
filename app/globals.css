@@ -1,0 +1,38 @@
+@import "tailwindcss";
+
+:root {
+  /* 프로토타입 색상 토큰 — 호버/선택 상태에 사용 */
+  --s2: #263348;  /* hover 배경 (파란색 톤) */
+  --s3: #2d3f5a;  /* active/선택 배경 (파란색 톤) */
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: #0f172a;
+  color: #f1f5f9;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  font-size: 13px;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Live dot 애니메이션 (Header.tsx에서 사용) */
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.2; }
+}
+.live-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: #22c55e;
+  animation: blink 2s ease-in-out infinite;
+}
+
+/* 스크롤바 스타일 (RankingTable 테이블 패널) */
+.table-scroll::-webkit-scrollbar { width: 3px; }
+.table-scroll::-webkit-scrollbar-track { background: transparent; }
+.table-scroll::-webkit-scrollbar-thumb { background: #334155; border-radius: 2px; }
