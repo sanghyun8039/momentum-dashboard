@@ -15,7 +15,8 @@
 
 ### 포트폴리오 구성
 - 보유 ETF 수: **Top 3**
-- 현재 Top 3을 항상 보유 중으로 가정 (자동 가정 방식, 수동 입력 없음)
+- 이 대시보드는 전략을 충실히 따랐을 때의 이상적 상태를 보여주는 **가이드** 역할을 한다. 실제 보유 추적 기능은 제공하지 않는다.
+- "현재 보유 종목" = 전월 말(이번 달 1일 이전 마지막 데이터 포인트) 기준 Top 3으로 자동 결정
 
 ### 편입 조건 (둘 다 충족)
 1. 현재 랭킹 **Top 3** 이내
@@ -80,20 +81,24 @@
 ## 데이터 흐름
 
 ```
-LatestRanking[] (API)
+LatestRanking[] + HistoryResponse + today: Date (page.tsx에서 주입)
   ↓
-computePortfolioStatus(data) → PortfolioState
-  ├── holdings: ETF[] (Top 3, score > 0)
-  ├── bufferZone: ETF[] (4~6위 중 보유 중인 것)
-  ├── sellSignals: ETF[] (7위↓ 또는 score ≤ 0)
+computePortfolioStatus(latest, history, today) → PortfolioState
+  ├── holdings: ETF[]        // 전월 말 Top 3 기준 현재 보유 종목
+  ├── bufferZone: ETF[]      // 보유 중 + 현재 4~6위
+  ├── sellSignals: ETF[]     // 보유 중 + (7위↓ 또는 score ≤ 0)
+  ├── replacements: ETF[]    // SELL 종목 대체 후보 (score > 0인 최상위 미보유)
   ├── actionRequired: boolean
-  └── nextCheckDate: string (이번 달 마지막 영업일)
+  └── nextCheckDate: string  // 이번 달 마지막 금요일 (공휴일 무시)
 
 PortfolioState → PortfolioStatusBar (하단 바)
 PortfolioState → RankingTable (태그 렌더링)
 ```
 
 `computePortfolioStatus`는 순수 함수로 `lib/strategy.ts`에 분리 구현.
+- `today`를 외부에서 주입받아 테스트 시 임의 날짜 주입 가능
+- `history`가 로딩 중이면 현재 Top 3을 보유 중으로 fallback 처리
+- 대체 후보(`replacements`)는 `score > 0`을 충족하는 최상위 미보유 ETF
 
 ---
 
@@ -126,5 +131,19 @@ app/page.tsx               ← 수정 (ScoreBreakdownBar → PortfolioStatusBar)
 
 ## 비고
 
-- `ScoreBreakdownBar` (ETF 클릭 시 기간별 스코어 차트)는 제거. 해당 정보는 랭킹 테이블의 행 클릭 → 툴팁 또는 별도 확장으로 추후 고려 가능.
+- `ScoreBreakdownBar` (ETF 클릭 시 기간별 스코어 차트)는 이번 구현에서 완전 제거. 기간별 스코어 시각화는 별도 작업으로 추후 추가.
 - 전략 파라미터 (Top N, 버퍼 임계값, score 기준값)는 현재 하드코딩. 향후 설정 UI 추가 가능.
+- `nextCheckDate`는 공휴일 무시, 이번 달 마지막 금요일로 단순 계산.
+
+## 확정된 결정 사항 (grill 세션)
+
+| 질문 | 결정 |
+|------|------|
+| 가이드 vs 실제 추적 | 가이드 역할. "전략대로라면 이 상태" |
+| 다음 체크 날짜 계산 | 공휴일 무시, 이번 달 마지막 금요일 |
+| 보유 종목 기준 | 전월 말(이번 달 1일 이전 마지막 데이터) Top 3 |
+| history 로딩 중 처리 | 현재 Top 3으로 fallback |
+| 대체 후보 결정 | score > 0인 최상위 미보유 ETF |
+| 랭킹 테이블 태그 | 해당 종목만 표시, 나머지 빈칸 |
+| today 주입 방식 | page.tsx에서 외부 주입 (순수 함수 유지) |
+| 기간별 스코어 | 이번 구현에서 제거, 추후 별도 작업 |
