@@ -1,4 +1,4 @@
-const API = process.env.NEXT_PUBLIC_API_URL || 'http://120.142.101.230:3001';
+const API = process.env.NEXT_PUBLIC_API_URL || 'http://120.142.101.230:3000';
 
 export const fetcher = (url: string) =>
   fetch(url).then((r) => {

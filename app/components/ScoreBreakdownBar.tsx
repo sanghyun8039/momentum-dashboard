@@ -50,7 +50,6 @@ export function ScoreBreakdownBar({ symbol }: Props) {
         },
         scales: {
           x: {
-            min: 0, max: 1.05,
             grid: { color: '#1a2840' },
             ticks: { color: '#475569', font: { size: 9 } },
             border: { display: false },

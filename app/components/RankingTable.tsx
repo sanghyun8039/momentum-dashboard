@@ -9,6 +9,8 @@ interface Props {
 
 export function RankingTable({ data, selectedSymbol, onSelect }: Props) {
   const maxScore = Math.max(...data.map((d) => d.total_score));
+  const minScore = Math.min(0, ...data.map((d) => d.total_score));
+  const range = maxScore - minScore;
 
   return (
     <div className="flex flex-col p-3 overflow-y-auto h-full table-scroll">
@@ -47,7 +49,7 @@ export function RankingTable({ data, selectedSymbol, onSelect }: Props) {
               <div
                 className="h-1 rounded transition-all duration-300"
                 style={{
-                  width: `${(item.total_score / maxScore) * 100}%`,
+                  width: `${Math.max(0, (item.total_score - minScore) / range) * 100}%`,
                   backgroundColor: CHART_COLORS[i] ?? '#475569',
                 }}
               />
