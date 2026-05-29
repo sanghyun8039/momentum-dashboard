@@ -98,6 +98,7 @@ export function computePortfolioStatus(
   // SELL 종목 대체 후보: score > 0이면서 현재 미보유인 최상위 ETF
   const replacements: HoldingItem[] = latest
     .filter((e) => !holdingSet.has(e.symbol) && e.total_score > 0)
+    .sort((a, b) => a.rank - b.rank)
     .slice(0, sellCount)
     .map((e) => ({
       symbol: e.symbol,

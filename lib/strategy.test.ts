@@ -86,6 +86,7 @@ describe('computePortfolioStatus', () => {
     const state = computePortfolioStatus(latest, history, TODAY);
 
     expect(state.allCashWarning).toBe(true);
+    expect(state.actionRequired).toBe(true);
     expect(state.replacements).toHaveLength(0); // 대체 후보도 score 양수여야 함
   });
 
@@ -111,5 +112,16 @@ describe('computePortfolioStatus', () => {
 
     expect(state.replacements[0].symbol).toBe('TAN');
     expect(state.replacements.every((r) => r.total_score > 0)).toBe(true);
+  });
+
+  test('경계값 — 6위는 BUFFER, 7위는 SELL', () => {
+    const latest = makeLatest();
+    latest.find((e) => e.symbol === 'UFO')!.rank = 6;
+    latest.find((e) => e.symbol === 'SOXX')!.rank = 7;
+    const history = makeHistory();
+    const state = computePortfolioStatus(latest, history, TODAY);
+
+    expect(state.holdings.find((h) => h.symbol === 'UFO')?.status).toBe('BUFFER');
+    expect(state.holdings.find((h) => h.symbol === 'SOXX')?.status).toBe('SELL');
   });
 });
