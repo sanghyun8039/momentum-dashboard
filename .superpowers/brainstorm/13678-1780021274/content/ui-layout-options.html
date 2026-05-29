@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"/>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #0f172a; color: #e2e8f0; font-family: ui-sans-serif, system-ui, sans-serif; padding: 20px; }
+  h2 { font-size: 15px; color: #f1f5f9; margin-bottom: 6px; }
+  .subtitle { font-size: 12px; color: #64748b; margin-bottom: 24px; }
+
+  .cards { display: flex; gap: 16px; flex-wrap: wrap; }
+  .card {
+    flex: 1; min-width: 280px;
+    background: #1e293b; border: 2px solid #334155;
+    border-radius: 10px; overflow: hidden; cursor: pointer;
+    transition: border-color 0.2s;
+  }
+  .card:hover { border-color: #3b82f6; }
+  .card.selected { border-color: #3b82f6; background: #1e3a5f; }
+  .card-label {
+    background: #0f172a; padding: 10px 14px;
+    font-size: 11px; font-weight: 700; letter-spacing: 0.08em;
+    text-transform: uppercase; color: #3b82f6;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .card-label span { color: #475569; font-weight: 400; }
+  .card-body { padding: 14px; }
+  .card-desc { font-size: 11px; color: #64748b; margin-top: 10px; line-height: 1.5; border-top: 1px solid #1e293b; padding-top: 10px; }
+
+  /* 미니 대시보드 공통 */
+  .dash { background: #0f172a; border-radius: 6px; padding: 10px; font-size: 10px; }
+  .dash-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+  .dash-title { font-size: 9px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #475569; }
+  .tag { font-size: 9px; font-weight: 600; padding: 2px 6px; border-radius: 3px; }
+  .tag-green { background: #14532d; color: #4ade80; }
+  .tag-yellow { background: #422006; color: #fbbf24; }
+  .tag-red { background: #450a0a; color: #f87171; }
+  .tag-gray { background: #1e293b; color: #64748b; }
+
+  .row { display: flex; align-items: center; gap: 6px; padding: 4px 0; border-bottom: 1px solid #1a2840; }
+  .row:last-child { border-bottom: none; }
+  .symbol { font-size: 10px; font-weight: 700; width: 36px; color: #e2e8f0; font-family: monospace; }
+  .rank-badge { font-size: 9px; color: #475569; width: 24px; text-align: right; }
+  .score { font-size: 9px; color: #64748b; width: 28px; text-align: right; font-family: monospace; }
+  .bar-wrap { flex: 1; height: 3px; background: #1a2840; border-radius: 2px; }
+  .bar { height: 3px; border-radius: 2px; }
+
+  /* 옵션 A - 사이드 패널 */
+  .layout-a { display: flex; gap: 6px; height: 200px; }
+  .layout-a .main { flex: 6; background: #1a2840; border-radius: 4px; display: flex; align-items: center; justify-content: center; }
+  .layout-a .main span { font-size: 9px; color: #334155; }
+  .layout-a .side { flex: 3; display: flex; flex-direction: column; gap: 4px; }
+  .signal-card { background: #1e293b; border-radius: 4px; padding: 8px; border-left: 2.5px solid; }
+  .signal-card.green { border-color: #22c55e; }
+  .signal-card.yellow { border-color: #f59e0b; }
+  .signal-card.action { border-color: #3b82f6; background: #1e3a5f; }
+  .signal-title { font-size: 9px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: #475569; margin-bottom: 4px; }
+  .signal-item { display: flex; align-items: center; justify-content: space-between; padding: 2px 0; }
+  .signal-sym { font-size: 10px; font-weight: 700; font-family: monospace; }
+  .signal-action { font-size: 8px; font-weight: 600; padding: 1px 5px; border-radius: 2px; }
+  .action-hold { background: #14532d; color: #4ade80; }
+  .action-watch { background: #422006; color: #fbbf24; }
+  .action-none { background: #1e293b; color: #475569; }
+
+  /* 옵션 B - 하단 바 확장 */
+  .layout-b { display: flex; flex-direction: column; gap: 4px; height: 200px; }
+  .layout-b .top { flex: 1; display: flex; gap: 4px; }
+  .layout-b .chart { flex: 6; background: #1a2840; border-radius: 4px; display: flex; align-items: center; justify-content: center; }
+  .layout-b .chart span { font-size: 9px; color: #334155; }
+  .layout-b .table { flex: 3; background: #1a2840; border-radius: 4px; display: flex; align-items: center; justify-content: center; }
+  .layout-b .table span { font-size: 9px; color: #334155; }
+  .layout-b .bottom { height: 64px; background: #1e293b; border-radius: 4px; padding: 8px 10px; display: flex; gap: 12px; align-items: center; }
+  .portfolio-item { display: flex; flex-direction: column; gap: 2px; }
+  .p-sym { font-size: 11px; font-weight: 700; font-family: monospace; }
+  .p-meta { font-size: 8px; color: #475569; }
+  .divider { width: 1px; height: 32px; background: #334155; }
+  .action-box { margin-left: auto; background: #1e3a5f; border: 1px solid #3b82f6; border-radius: 4px; padding: 6px 10px; text-align: center; }
+  .action-box-title { font-size: 8px; color: #3b82f6; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
+  .action-box-content { font-size: 10px; color: #e2e8f0; margin-top: 2px; }
+
+  /* 옵션 C - 전용 탭 */
+  .layout-c { height: 200px; display: flex; flex-direction: column; gap: 0; }
+  .tab-bar { display: flex; gap: 0; border-bottom: 1px solid #334155; }
+  .tab { font-size: 9px; font-weight: 600; padding: 5px 10px; cursor: default; color: #475569; letter-spacing: 0.05em; text-transform: uppercase; }
+  .tab.active { color: #3b82f6; border-bottom: 2px solid #3b82f6; margin-bottom: -1px; }
+  .tab-content { flex: 1; display: flex; gap: 6px; padding: 8px 6px; background: #0f172a; }
+  .strategy-col { width: 100px; }
+  .strategy-col .s-title { font-size: 8px; color: #475569; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px; }
+  .strategy-rule { font-size: 8px; color: #94a3b8; margin-bottom: 3px; padding-left: 6px; border-left: 1.5px solid #334155; }
+  .holdings-col { flex: 1; }
+  .h-title { font-size: 8px; color: #475569; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px; }
+  .h-row { display: flex; align-items: center; gap: 4px; padding: 3px 0; border-bottom: 1px solid #1a2840; }
+  .h-sym { font-size: 10px; font-weight: 700; font-family: monospace; width: 32px; }
+  .h-rank { font-size: 8px; color: #475569; width: 20px; }
+  .h-score { font-size: 8px; color: #64748b; font-family: monospace; width: 28px; text-align: right; }
+  .h-status { font-size: 8px; font-weight: 600; padding: 1px 5px; border-radius: 2px; margin-left: auto; }
+  .next-col { width: 90px; }
+  .n-title { font-size: 8px; color: #475569; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px; }
+  .n-item { font-size: 8px; padding: 3px 5px; border-radius: 3px; margin-bottom: 2px; }
+  .n-item.action { background: #1e3a5f; color: #93c5fd; }
+  .n-item.ok { background: #14532d22; color: #4ade80; }
+</style>
+</head>
+<body>
+<h2>신호 UI 레이아웃 — 어떤 방식이 맞나요?</h2>
+<p class="subtitle">현재 보유 상태와 교체 신호를 어디에, 어떻게 보여줄지 결정합니다</p>
+
+<div class="cards">
+
+  <!-- 옵션 A -->
+  <div class="card" onclick="this.classList.toggle('selected')">
+    <div class="card-label">A — 사이드 신호 패널 <span>우측 테이블 위에 고정</span></div>
+    <div class="card-body">
+      <div class="layout-a dash">
+        <div class="main"><span>차트 영역</span></div>
+        <div class="side">
+          <div class="signal-card green">
+            <div class="signal-title">보유 중</div>
+            <div class="signal-item"><span class="signal-sym" style="color:#22c55e">EWY</span><span class="signal-action action-hold">HOLD #1</span></div>
+            <div class="signal-item"><span class="signal-sym" style="color:#3b82f6">UFO</span><span class="signal-action action-hold">HOLD #2</span></div>
+            <div class="signal-item"><span class="signal-sym" style="color:#f59e0b">SOXX</span><span class="signal-action action-hold">HOLD #3</span></div>
+          </div>
+          <div class="signal-card yellow">
+            <div class="signal-title">버퍼존 감시</div>
+            <div class="signal-item"><span class="signal-sym" style="color:#f59e0b">TAN</span><span class="signal-action action-watch">#4 주시</span></div>
+          </div>
+        </div>
+      </div>
+      <p class="card-desc">기존 레이아웃(차트+테이블) 유지. 우측에 신호 카드 추가. 항상 보이지만 공간을 차지함.</p>
+    </div>
+  </div>
+
+  <!-- 옵션 B -->
+  <div class="card" onclick="this.classList.toggle('selected')">
+    <div class="card-label">B — 하단 바 확장 <span>기존 하단 영역 활용</span></div>
+    <div class="card-body">
+      <div class="layout-b dash">
+        <div class="top">
+          <div class="chart"><span>차트 영역</span></div>
+          <div class="table"><span>랭킹 테이블</span></div>
+        </div>
+        <div class="bottom">
+          <div class="portfolio-item">
+            <span class="p-sym" style="color:#22c55e">EWY</span>
+            <span class="p-meta">HOLD · #1 · 10.62</span>
+          </div>
+          <div class="divider"></div>
+          <div class="portfolio-item">
+            <span class="p-sym" style="color:#3b82f6">UFO</span>
+            <span class="p-meta">HOLD · #2 · 10.16</span>
+          </div>
+          <div class="divider"></div>
+          <div class="portfolio-item">
+            <span class="p-sym" style="color:#f59e0b">SOXX</span>
+            <span class="p-meta">BUFFER · #5 · 9.64</span>
+          </div>
+          <div class="action-box">
+            <div class="action-box-title">이번 달 액션</div>
+            <div class="action-box-content">변동 없음 ✓</div>
+          </div>
+        </div>
+      </div>
+      <p class="card-desc">기존 하단 스코어 바를 포트폴리오 상태 바로 교체. 심플하고 공간 효율적. 현재 UI와 가장 자연스럽게 통합.</p>
+    </div>
+  </div>
+
+  <!-- 옵션 C -->
+  <div class="card" onclick="this.classList.toggle('selected')">
+    <div class="card-label">C — 전략 탭 추가 <span>별도 Strategy 뷰</span></div>
+    <div class="card-body">
+      <div class="layout-c dash">
+        <div class="tab-bar">
+          <div class="tab">Dashboard</div>
+          <div class="tab active">Strategy</div>
+        </div>
+        <div class="tab-content">
+          <div class="strategy-col">
+            <div class="s-title">전략 설정</div>
+            <div class="strategy-rule">보유: Top 3</div>
+            <div class="strategy-rule">청산: 7위↓</div>
+            <div class="strategy-rule">필터: score>0</div>
+            <div class="strategy-rule">주기: 월 1회</div>
+          </div>
+          <div class="holdings-col">
+            <div class="h-title">현재 포트폴리오</div>
+            <div class="h-row"><span class="h-sym" style="color:#22c55e">EWY</span><span class="h-rank">#1</span><span class="h-score">10.62</span><span class="h-status" style="background:#14532d;color:#4ade80">HOLD</span></div>
+            <div class="h-row"><span class="h-sym" style="color:#3b82f6">UFO</span><span class="h-rank">#2</span><span class="h-score">10.16</span><span class="h-status" style="background:#14532d;color:#4ade80">HOLD</span></div>
+            <div class="h-row"><span class="h-sym" style="color:#f59e0b">SOXX</span><span class="h-rank">#5</span><span class="h-score">9.64</span><span class="h-status" style="background:#422006;color:#fbbf24">BUFFER</span></div>
+          </div>
+          <div class="next-col">
+            <div class="n-title">이번 달 액션</div>
+            <div class="n-item ok">EWY 유지 ✓</div>
+            <div class="n-item ok">UFO 유지 ✓</div>
+            <div class="n-item ok">SOXX 유지 ✓</div>
+            <div class="n-item action">TAN 대기중</div>
+          </div>
+        </div>
+      </div>
+      <p class="card-desc">Dashboard와 Strategy를 탭으로 분리. 전략 설정 + 포트폴리오 + 액션을 한 화면에. 가장 많은 정보. 복잡할 수 있음.</p>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,26 @@
+<h2>어떤 방식의 매매 전략을 원하시나요?</h2>
+<p class="subtitle">모멘텀 랭킹을 어떻게 활용할지 결정합니다</p>
+
+<div class="options">
+  <div class="option" data-choice="a" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>월 1회 리밸런싱</h3>
+      <p>매월 말 상위 N개 ETF를 동일 비중으로 보유. 가장 검증된 모멘텀 전략. 세금/수수료 최소화.</p>
+    </div>
+  </div>
+  <div class="option" data-choice="b" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>랭킹 변화 신호 기반</h3>
+      <p>랭킹이 특정 임계값 이상 변동할 때만 매매. 예: Top 10 진입/이탈 시 알림 + 매매.</p>
+    </div>
+  </div>
+  <div class="option" data-choice="c" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>스코어 절대값 필터 포함</h3>
+      <p>랭킹뿐 아니라 total_score가 양수인 ETF만 편입. 전체 시장이 약세일 때 현금 비중 확대.</p>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"/>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #0f172a; color: #e2e8f0; font-family: ui-sans-serif, system-ui, sans-serif; padding: 24px; }
+  h2 { font-size: 15px; color: #f1f5f9; margin-bottom: 4px; }
+  .subtitle { font-size: 12px; color: #64748b; margin-bottom: 24px; }
+  .section-label { font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #475569; margin-bottom: 10px; }
+
+  /* 전체 대시보드 프레임 */
+  .dashboard-frame {
+    border: 1px solid #334155; border-radius: 10px; overflow: hidden;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.4);
+  }
+  .dash-header {
+    background: #1e293b; border-bottom: 1px solid #334155;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 16px; height: 44px;
+  }
+  .dash-header-left { display: flex; align-items: center; gap: 8px; }
+  .dash-header-title { font-size: 13px; font-weight: 700; color: #f1f5f9; }
+  .badge { font-size: 9px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; padding: 2px 7px; border-radius: 99px; }
+  .badge-blue { background: rgba(59,130,246,0.15); color: #60a5fa; border: 1px solid rgba(59,130,246,0.3); }
+  .dash-header-right { display: flex; align-items: center; gap: 12px; font-size: 10px; }
+  .stat { display: flex; flex-direction: column; align-items: flex-end; gap: 0; }
+  .stat-label { font-size: 8px; text-transform: uppercase; letter-spacing: 0.08em; color: #475569; }
+  .stat-val { font-size: 11px; font-weight: 600; color: #f1f5f9; font-variant-numeric: tabular-nums; }
+  .live-dot { width: 6px; height: 6px; background: #22c55e; border-radius: 50%; display: inline-block; margin-right: 4px; box-shadow: 0 0 4px #22c55e; }
+
+  /* 메인 영역 */
+  .dash-main { display: flex; height: 300px; }
+  .dash-chart { flex: 65; background: #0f172a; display: flex; align-items: center; justify-content: center; border-right: 1px solid #334155; }
+  .dash-chart-placeholder { font-size: 11px; color: #1e3a5f; }
+  .dash-table { flex: 35; background: #0f172a; overflow: hidden; padding: 10px 0; }
+
+  /* 랭킹 테이블 미니 */
+  .rank-row { display: flex; align-items: center; gap: 6px; padding: 3px 10px; }
+  .rank-num { font-size: 10px; font-weight: 700; width: 16px; text-align: right; font-variant-numeric: tabular-nums; }
+  .rank-sym { font-size: 11px; font-weight: 700; width: 36px; font-family: monospace; }
+  .rank-bar-wrap { flex: 1; height: 3px; background: #1a2840; border-radius: 2px; overflow: hidden; }
+  .rank-bar { height: 3px; border-radius: 2px; }
+  .rank-score { font-size: 9px; color: #475569; width: 28px; text-align: right; font-variant-numeric: tabular-nums; }
+  .rank-status { width: 42px; text-align: right; }
+  .status-tag { font-size: 8px; font-weight: 700; padding: 1px 5px; border-radius: 3px; letter-spacing: 0.04em; }
+  .s-hold { background: #14532d; color: #4ade80; }
+  .s-buffer { background: #3f2a00; color: #fbbf24; }
+  .s-watch { background: #1e293b; color: #475569; }
+  .rank-row-divider { border: none; border-top: 1px solid #1a2840; margin: 2px 0; }
+
+  /* ===== 하단 포트폴리오 바 (핵심) ===== */
+  .dash-bottom {
+    background: #1e293b; border-top: 1px solid #334155;
+    padding: 10px 16px; display: flex; align-items: center; gap: 0;
+  }
+  .portfolio-section { display: flex; align-items: center; gap: 14px; flex: 1; }
+  .port-label { font-size: 8px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #334155; writing-mode: vertical-lr; transform: rotate(180deg); margin-right: 6px; }
+
+  .holding-item { display: flex; flex-direction: column; gap: 2px; }
+  .holding-sym { font-size: 13px; font-weight: 800; font-family: monospace; line-height: 1; }
+  .holding-meta { display: flex; align-items: center; gap: 4px; }
+  .holding-rank { font-size: 9px; color: #475569; }
+  .holding-score { font-size: 9px; color: #64748b; font-variant-numeric: tabular-nums; }
+  .holding-tag { font-size: 8px; font-weight: 700; padding: 1px 5px; border-radius: 3px; }
+
+  .sep { width: 1px; height: 36px; background: #334155; margin: 0 4px; }
+
+  /* 액션 박스 */
+  .action-section { margin-left: 16px; }
+  .action-box {
+    background: #0f172a; border: 1px solid #1e3a5f;
+    border-radius: 6px; padding: 8px 14px; text-align: center; min-width: 120px;
+  }
+  .action-box.alert { border-color: #f59e0b; background: #1c1300; }
+  .action-box-label { font-size: 8px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #475569; margin-bottom: 4px; }
+  .action-box.alert .action-box-label { color: #92400e; }
+  .action-main { font-size: 12px; font-weight: 700; color: #4ade80; }
+  .action-box.alert .action-main { color: #fbbf24; }
+  .action-sub { font-size: 9px; color: #334155; margin-top: 1px; }
+  .action-box.alert .action-sub { color: #78350f; }
+
+  /* 전략 요약 */
+  .strategy-section { margin-left: 16px; padding-left: 16px; border-left: 1px solid #334155; }
+  .strategy-title { font-size: 8px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #334155; margin-bottom: 4px; }
+  .strategy-rules { display: flex; flex-direction: column; gap: 2px; }
+  .s-rule { font-size: 9px; color: #475569; }
+  .s-rule span { color: #64748b; }
+
+  /* 두 번째 예시 — 버퍼존 발동 상태 */
+  .example-label { font-size: 11px; color: #475569; margin: 20px 0 10px; display: flex; align-items: center; gap: 8px; }
+  .example-label::after { content: ''; flex: 1; height: 1px; background: #1e293b; }
+</style>
+</head>
+<body>
+
+<h2>최종 디자인 — 포트폴리오 상태 바</h2>
+<p class="subtitle">하단 바가 스코어 브레이크다운 대신 전략 신호 + 보유 현황을 표시합니다</p>
+
+<!-- 케이스 1: 정상 (모두 HOLD) -->
+<div class="section-label">케이스 1 — 이상 없음 (모두 Top 3 유지)</div>
+<div class="dashboard-frame">
+  <div class="dash-header">
+    <div class="dash-header-left">
+      <span class="dash-header-title">ETF Momentum</span>
+      <span class="badge badge-blue">Dashboard</span>
+    </div>
+    <div class="dash-header-right">
+      <div class="stat"><span class="stat-label">Universe</span><span class="stat-val">46 ETFs</span></div>
+      <div class="stat"><span class="stat-label">Period</span><span class="stat-val">90 days</span></div>
+      <span style="color:#22c55e;font-size:11px"><span class="live-dot"></span>Live</span>
+    </div>
+  </div>
+  <div class="dash-main">
+    <div class="dash-chart"><span class="dash-chart-placeholder">Rank Trend Chart</span></div>
+    <div class="dash-table">
+      <div class="rank-row"><span class="rank-num" style="color:#22c55e">1</span><span class="rank-sym" style="color:#22c55e">EWY</span><div class="rank-bar-wrap"><div class="rank-bar" style="width:100%;background:#22c55e"></div></div><span class="rank-score">10.62</span><span class="rank-status"><span class="status-tag s-hold">HOLD</span></span></div>
+      <div class="rank-row"><span class="rank-num" style="color:#3b82f6">2</span><span class="rank-sym" style="color:#3b82f6">UFO</span><div class="rank-bar-wrap"><div class="rank-bar" style="width:95%;background:#3b82f6"></div></div><span class="rank-score">10.16</span><span class="rank-status"><span class="status-tag s-hold">HOLD</span></span></div>
+      <div class="rank-row"><span class="rank-num" style="color:#f59e0b">3</span><span class="rank-sym" style="color:#f59e0b">SOXX</span><div class="rank-bar-wrap"><div class="rank-bar" style="width:91%;background:#f59e0b"></div></div><span class="rank-score">9.64</span><span class="rank-status"><span class="status-tag s-hold">HOLD</span></span></div>
+      <hr class="rank-row-divider"/>
+      <div class="rank-row"><span class="rank-num" style="color:#475569">4</span><span class="rank-sym" style="color:#475569">TAN</span><div class="rank-bar-wrap"><div class="rank-bar" style="width:60%;background:#334155"></div></div><span class="rank-score">6.42</span><span class="rank-status"><span class="status-tag s-watch">대기</span></span></div>
+      <div class="rank-row"><span class="rank-num" style="color:#475569">5</span><span class="rank-sym" style="color:#475569">AIQ</span><div class="rank-bar-wrap"><div class="rank-bar" style="width:49%;background:#334155"></div></div><span class="rank-score">5.18</span><span class="rank-status"><span class="status-tag s-watch">대기</span></span></div>
+    </div>
+  </div>
+
+  <!-- 핵심: 하단 포트폴리오 바 -->
+  <div class="dash-bottom">
+    <span class="port-label">Portfolio</span>
+    <div class="portfolio-section">
+      <div class="holding-item">
+        <span class="holding-sym" style="color:#22c55e">EWY</span>
+        <div class="holding-meta">
+          <span class="holding-rank">#1</span>
+          <span class="holding-score">10.62</span>
+          <span class="holding-tag s-hold">HOLD</span>
+        </div>
+      </div>
+      <div class="sep"></div>
+      <div class="holding-item">
+        <span class="holding-sym" style="color:#3b82f6">UFO</span>
+        <div class="holding-meta">
+          <span class="holding-rank">#2</span>
+          <span class="holding-score">10.16</span>
+          <span class="holding-tag s-hold">HOLD</span>
+        </div>
+      </div>
+      <div class="sep"></div>
+      <div class="holding-item">
+        <span class="holding-sym" style="color:#f59e0b">SOXX</span>
+        <div class="holding-meta">
+          <span class="holding-rank">#3</span>
+          <span class="holding-score">9.64</span>
+          <span class="holding-tag s-hold">HOLD</span>
+        </div>
+      </div>
+    </div>
+    <div class="action-section">
+      <div class="action-box">
+        <div class="action-box-label">이번 달 액션</div>
+        <div class="action-main">변동 없음 ✓</div>
+        <div class="action-sub">다음 체크: 6월 30일</div>
+      </div>
+    </div>
+    <div class="strategy-section">
+      <div class="strategy-title">전략 기준</div>
+      <div class="strategy-rules">
+        <span class="s-rule">보유 <span>Top 3</span></span>
+        <span class="s-rule">청산 <span>7위↓ or score &lt; 0</span></span>
+        <span class="s-rule">주기 <span>월 1회 체크</span></span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 케이스 2: 버퍼존 -->
+<div class="example-label">케이스 2 — SOXX가 5위로 밀림 (버퍼존 발동, 교체 없음)</div>
+<div class="dashboard-frame">
+  <div class="dash-main" style="height:140px">
+    <div class="dash-chart"><span class="dash-chart-placeholder">Rank Trend Chart</span></div>
+    <div class="dash-table">
+      <div class="rank-row"><span class="rank-num" style="color:#22c55e">1</span><span class="rank-sym" style="color:#22c55e">EWY</span><div class="rank-bar-wrap"><div class="rank-bar" style="width:100%;background:#22c55e"></div></div><span class="rank-score">10.62</span><span class="rank-status"><span class="status-tag s-hold">HOLD</span></span></div>
+      <div class="rank-row"><span class="rank-num" style="color:#3b82f6">2</span><span class="rank-sym" style="color:#3b82f6">UFO</span><div class="rank-bar-wrap"><div class="rank-bar" style="width:95%;background:#3b82f6"></div></div><span class="rank-score">10.16</span><span class="rank-status"><span class="status-tag s-hold">HOLD</span></span></div>
+      <div class="rank-row"><span class="rank-num" style="color:#475569">3</span><span class="rank-sym" style="color:#475569">TAN</span><div class="rank-bar-wrap"><div class="rank-bar" style="width:60%;background:#334155"></div></div><span class="rank-score">6.42</span><span class="rank-status"><span class="status-tag s-watch">대기</span></span></div>
+      <div class="rank-row"><span class="rank-num" style="color:#475569">4</span><span class="rank-sym" style="color:#475569">AIQ</span><div class="rank-bar-wrap"><div class="rank-bar" style="width:49%;background:#334155"></div></div><span class="rank-score">5.18</span><span class="rank-status"><span class="status-tag s-watch">대기</span></span></div>
+      <div class="rank-row"><span class="rank-num" style="color:#f59e0b">5</span><span class="rank-sym" style="color:#f59e0b">SOXX</span><div class="rank-bar-wrap"><div class="rank-bar" style="width:91%;background:#f59e0b"></div></div><span class="rank-score">9.64</span><span class="rank-status"><span class="status-tag s-buffer">BUFFER</span></span></div>
+    </div>
+  </div>
+  <div class="dash-bottom">
+    <span class="port-label">Portfolio</span>
+    <div class="portfolio-section">
+      <div class="holding-item">
+        <span class="holding-sym" style="color:#22c55e">EWY</span>
+        <div class="holding-meta"><span class="holding-rank">#1</span><span class="holding-score">10.62</span><span class="holding-tag s-hold">HOLD</span></div>
+      </div>
+      <div class="sep"></div>
+      <div class="holding-item">
+        <span class="holding-sym" style="color:#3b82f6">UFO</span>
+        <div class="holding-meta"><span class="holding-rank">#2</span><span class="holding-score">10.16</span><span class="holding-tag s-hold">HOLD</span></div>
+      </div>
+      <div class="sep"></div>
+      <div class="holding-item">
+        <span class="holding-sym" style="color:#f59e0b">SOXX</span>
+        <div class="holding-meta"><span class="holding-rank">#5</span><span class="holding-score">9.64</span><span class="holding-tag s-buffer">BUFFER</span></div>
+      </div>
+    </div>
+    <div class="action-section">
+      <div class="action-box alert">
+        <div class="action-box-label">이번 달 액션</div>
+        <div class="action-main">SOXX 주시 ⚠</div>
+        <div class="action-sub">7위↓ 시 TAN으로 교체</div>
+      </div>
+    </div>
+    <div class="strategy-section">
+      <div class="strategy-title">전략 기준</div>
+      <div class="strategy-rules">
+        <span class="s-rule">보유 <span>Top 3</span></span>
+        <span class="s-rule">청산 <span>7위↓ or score &lt; 0</span></span>
+        <span class="s-rule">주기 <span>월 1회 체크</span></span>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

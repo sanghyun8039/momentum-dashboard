@@ -1,0 +1,13 @@
+{"type":"server-started","port":56490,"host":"127.0.0.1","url_host":"localhost","url":"http://localhost:56490","screen_dir":"/Users/research/Documents/momentum-dashboard-main/.superpowers/brainstorm/13678-1780021274/content","state_dir":"/Users/research/Documents/momentum-dashboard-main/.superpowers/brainstorm/13678-1780021274/state"}
+{"type":"screen-added","file":"/Users/research/Documents/momentum-dashboard-main/.superpowers/brainstorm/13678-1780021274/content/q1-strategy-type.html"}
+{"source":"user-event","type":"click","text":"B\n    \n      랭킹 변화 신호 기반\n      랭킹이 특정 임계값 이상 변동할 때만 매매. 예: Top 10 진입/이탈 시 알림 + 매매.","choice":"b","id":null,"timestamp":1780021406887}
+{"type":"screen-added","file":"/Users/research/Documents/momentum-dashboard-main/.superpowers/brainstorm/13678-1780021274/content/q2-portfolio-size.html"}
+{"source":"user-event","type":"click","text":"A\n    \n      Top 3 — 집중 전략\n      모멘텀 상위 3개만 보유. 수익률 극대화 가능하지만 변동성 높음. 확신이 있을 때.","choice":"a","id":null,"timestamp":1780021433605}
+{"type":"screen-added","file":"/Users/research/Documents/momentum-dashboard-main/.superpowers/brainstorm/13678-1780021274/content/q3-signal-trigger.html"}
+{"type":"screen-added","file":"/Users/research/Documents/momentum-dashboard-main/.superpowers/brainstorm/13678-1780021274/content/waiting-1.html"}
+{"type":"screen-added","file":"/Users/research/Documents/momentum-dashboard-main/.superpowers/brainstorm/13678-1780021274/content/ui-layout-options.html"}
+{"type":"screen-added","file":"/Users/research/Documents/momentum-dashboard-main/.superpowers/brainstorm/13678-1780021274/content/q4-holdings-source.html"}
+{"source":"user-event","type":"click","text":"A\n    \n      자동 가정 — 항상 현재 Top 3 보유 중으로 간주\n      별도 입력 불필요. \"이 전략을 따른다면 지금 이 상태\"를 보여줌. 단순하고 관리 부담 없음. 실제 보유와 괴리가 생길 수 있음.","choice":"a","id":null,"timestamp":1780021814357}
+{"type":"screen-added","file":"/Users/research/Documents/momentum-dashboard-main/.superpowers/brainstorm/13678-1780021274/content/final-design.html"}
+{"type":"screen-added","file":"/Users/research/Documents/momentum-dashboard-main/.superpowers/brainstorm/13678-1780021274/content/waiting-2.html"}
+{"type":"server-stopped","reason":"idle timeout"}

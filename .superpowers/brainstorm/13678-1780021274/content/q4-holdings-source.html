@@ -1,0 +1,19 @@
+<h2>현재 보유 종목을 어떻게 관리할까요?</h2>
+<p class="subtitle">시스템이 "내가 지금 뭘 들고 있는지" 알아야 HOLD/BUFFER 상태를 표시할 수 있습니다</p>
+
+<div class="options">
+  <div class="option" data-choice="a" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>자동 가정 — 항상 현재 Top 3 보유 중으로 간주</h3>
+      <p>별도 입력 불필요. "이 전략을 따른다면 지금 이 상태"를 보여줌. 단순하고 관리 부담 없음. 실제 보유와 괴리가 생길 수 있음.</p>
+    </div>
+  </div>
+  <div class="option" data-choice="b" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>수동 입력 — 실제 보유 종목을 직접 설정</h3>
+      <p>처음 한 번 세팅 후 교체 시마다 업데이트. 실제 상황과 정확히 일치. 브라우저 localStorage에 저장.</p>
+    </div>
+  </div>
+</div>
