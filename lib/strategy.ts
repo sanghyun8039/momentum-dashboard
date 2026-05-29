@@ -20,9 +20,7 @@ function getPrevMonthHoldings(
       .map((e) => e.symbol);
   }
 
-  const firstOfMonth = new Date(today.getFullYear(), today.getMonth(), 1)
-    .toISOString()
-    .slice(0, 10);
+  const firstOfMonth = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-01`;
 
   // 이번 달 1일보다 앞선 가장 최근 데이터 포인트
   const prevPoint = [...history.data]
@@ -55,7 +53,10 @@ function getLastFridayOfMonth(today: Date): string {
   const offset = dayOfWeek >= 5 ? dayOfWeek - 5 : dayOfWeek + 2;
   const lastFriday = new Date(lastDay);
   lastFriday.setDate(lastDay.getDate() - offset);
-  return lastFriday.toISOString().slice(0, 10);
+  const y = lastFriday.getFullYear();
+  const m = String(lastFriday.getMonth() + 1).padStart(2, '0');
+  const d = String(lastFriday.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
 }
 
 /**
@@ -110,7 +111,7 @@ export function computePortfolioStatus(
 
   return {
     holdings,
-    replacements,
+    replacements: allCashWarning ? [] : replacements,
     actionRequired,
     nextCheckDate: getLastFridayOfMonth(today),
     allCashWarning,
