@@ -9,22 +9,28 @@ interface Props {
   symbols: string[];
   data: HistoryDataPoint[];
   selectedSymbol: string | null;
+  highlightSymbols?: string[]; // 포트폴리오 보유 종목 — 굵게 강조
 }
 
-export function RankTrendChart({ symbols, data, selectedSymbol }: Props) {
+export function RankTrendChart({ symbols, data, selectedSymbol, highlightSymbols = [] }: Props) {
   const [topN, setTopN] = useState<5 | 10>(10);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const chartRef = useRef<Chart | null>(null);
 
-  function buildDatasets(n: number, selected: string | null) {
+  function buildDatasets(n: number, selected: string | null, highlights: string[]) {
     return symbols.slice(0, n).map((sym, i) => {
-      const isActive = selected === null || selected === sym;
+      const isSelected = selected === null || selected === sym;
+      const isHighlighted = highlights.length === 0 || highlights.includes(sym);
+      const isActive = isSelected && isHighlighted;
+
       return {
         label: sym,
         data: data.map((d) => d[sym] as number),
-        borderColor: isActive ? CHART_COLORS[i] : CHART_COLORS[i] + '22',
+        borderColor: isActive
+          ? CHART_COLORS[i]
+          : CHART_COLORS[i] + '22',
         backgroundColor: 'transparent',
-        borderWidth: isActive ? 2.5 : 0.8,
+        borderWidth: highlights.includes(sym) ? 3 : isActive ? 2.5 : 0.8,
         pointRadius: 0,
         pointHoverRadius: isActive ? 4 : 0,
         tension: 0.35,
@@ -40,7 +46,7 @@ export function RankTrendChart({ symbols, data, selectedSymbol }: Props) {
     chartRef.current?.destroy();
     chartRef.current = new Chart(canvasRef.current, {
       type: 'line',
-      data: { labels, datasets: buildDatasets(topN, selectedSymbol) },
+      data: { labels, datasets: buildDatasets(topN, selectedSymbol, highlightSymbols) },
       options: {
         responsive: true,
         maintainAspectRatio: false,
@@ -87,10 +93,10 @@ export function RankTrendChart({ symbols, data, selectedSymbol }: Props) {
   // topN 또는 selectedSymbol 변경 시 데이터셋만 업데이트
   useEffect(() => {
     if (!chartRef.current) return;
-    chartRef.current.data.datasets = buildDatasets(topN, selectedSymbol);
+    chartRef.current.data.datasets = buildDatasets(topN, selectedSymbol, highlightSymbols);
     (chartRef.current.options.scales as any).y.max = topN;
     chartRef.current.update('none');
-  }, [topN, selectedSymbol]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [topN, selectedSymbol, highlightSymbols]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div className="flex flex-col h-full p-4">
