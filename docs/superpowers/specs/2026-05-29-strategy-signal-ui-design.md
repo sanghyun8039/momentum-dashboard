@@ -41,6 +41,15 @@
 
 ---
 
+## 전제 (Premises)
+
+1. **단독 사용** — 멀티유저 기능 불필요. 이 대시보드는 혼자 사용한다.
+2. **고정 유니버스** — 46개 ETF 유니버스는 변경되지 않는다. 종목 추가/삭제 UI 불필요.
+3. **동일 비중 표시** — 매매 비중은 Top 3 동일 비중(각 33.3%)을 텍스트로 표시. 비중 최적화 계산은 이번 범위 밖.
+4. **외부 매매** — 실제 주문 실행은 대시보드 밖(증권사 앱 등)에서 한다. 주문 연동 불필요.
+
+---
+
 ## UI 변경 사항
 
 ### 제거
@@ -66,7 +75,7 @@
 - 청산: "XXX 매도 신호" + "XXX 편입 예정" (빨강/강조)
 
 **전략 기준 요약**: 우측 고정 텍스트
-- 보유: Top 3
+- 보유: Top 3 (각 33.3% 동일 비중)
 - 청산: 7위↓ or score < 0
 - 주기: 월 1회 체크
 
@@ -75,6 +84,12 @@
   - 보유 중 ETF: `HOLD` / `BUFFER` / `SELL` 태그 표시
   - Top 10 진입 후보: `대기` 태그 표시
   - 나머지: 태그 없음
+
+### 랭킹 추이 차트 연동
+- `PortfolioStatusBar`가 활성화되면 왼쪽 `RankTrendChart`에서 보유 종목(holdings)이 **자동 하이라이트** 됨
+- 보유 종목 라인은 굵게 + 색상 강조, 나머지 종목은 dim 처리
+- 사용자가 주 1~2회 대시보드를 열었을 때 "SOXX가 지난 2주간 어떻게 움직였나"를 즉시 파악 가능
+- 구현: `PortfolioState.holdings`의 symbol 배열을 `RankTrendChart`에 `highlightSymbols` prop으로 전달
 
 ---
 
@@ -93,6 +108,7 @@ computePortfolioStatus(latest, history, today) → PortfolioState
 
 PortfolioState → PortfolioStatusBar (하단 바)
 PortfolioState → RankingTable (태그 렌더링)
+PortfolioState → RankTrendChart (highlightSymbols prop)
 ```
 
 `computePortfolioStatus`는 순수 함수로 `lib/strategy.ts`에 분리 구현.
@@ -108,12 +124,13 @@ PortfolioState → RankingTable (태그 렌더링)
 app/components/
   PortfolioStatusBar.tsx   ← 신규 (ScoreBreakdownBar 교체)
   RankingTable.tsx         ← 수정 (상태 태그 컬럼 추가)
+  RankTrendChart.tsx       ← 수정 (highlightSymbols prop 추가)
 
 lib/
   strategy.ts              ← 신규 (computePortfolioStatus 순수 함수)
   types.ts                 ← 수정 (PortfolioState 타입 추가)
 
-app/page.tsx               ← 수정 (ScoreBreakdownBar → PortfolioStatusBar)
+app/page.tsx               ← 수정 (ScoreBreakdownBar → PortfolioStatusBar, PortfolioState 전달)
 ```
 
 ---
@@ -147,3 +164,6 @@ app/page.tsx               ← 수정 (ScoreBreakdownBar → PortfolioStatusBar)
 | 랭킹 테이블 태그 | 해당 종목만 표시, 나머지 빈칸 |
 | today 주입 방식 | page.tsx에서 외부 주입 (순수 함수 유지) |
 | 기간별 스코어 | 이번 구현에서 제거, 추후 별도 작업 |
+| 비중 배분 | 동일 비중(33.3%) 텍스트 표시만. 최적화 계산은 이번 범위 밖 |
+| 차트 연동 | 보유 종목 자동 하이라이트 — highlightSymbols prop으로 전달 |
+| 사용 빈도 | 주 1~2회 상정. BUFFER 상태 주간 추이가 주요 판단 근거 |
