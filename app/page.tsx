@@ -73,6 +73,7 @@ export default function DashboardPage() {
               data={latest}
               selectedSymbol={selectedSymbol}
               onSelect={setSelectedSymbol}
+              portfolioState={null}
             />
           ) : (
             <div className="flex items-center justify-center h-full text-slate-600 text-sm">
